@@ -1,4 +1,5 @@
 <?php
+
 namespace Armanco\BootstrapRenderer;
 
 class Bootstrap
@@ -7,11 +8,10 @@ class Bootstrap
     private $title;
     private $jsScript;
     private $cssScript;
-    private $headScript;
     private $language;
     private $charset;
 
-    function __construct()
+    public function __construct()
     {
         $this->rendered = '';
         $this->language = 'en';
@@ -22,137 +22,214 @@ class Bootstrap
         $this->addJsFile('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js');
     }
 
-    function addTitle($title)
+    public function addTitle($title)
     {
         $this->title = $title;
     }
 
-    function addCharset($charset)
+    public function addCharset($charset)
     {
         $this->charset = $charset;
     }
 
-    function addLanguage($language)
+    public function addLanguage($language)
     {
         $this->language = $language;
     }
 
-    function addHtmlScript($script)
+    public function addHtmlScript($script)
     {
         $this->rendered .= $script;
     }
 
-    function addCssFile($url)
+    public function addCssFile($url, $attributes = [])
     {
-        $this->cssScript .= '<link rel="stylesheet" href="' . $url . '">';
+        $attributes['rel'] = 'stylesheet';
+        $attributes['href'] = $url;
+        $this->cssScript .= '<link' . $this->returnAttributes($attributes) . '>';
     }
 
-    function addJsFile($url)
+    public function addJsFile($url, $attributes = [])
     {
-        $this->jsScript .= '<script src="' . $url . '"></script>';
+        $attributes['src'] = $url;
+        $this->jsScript .= '<script' . $this->returnAttributes($attributes) . '></script>';
     }
 
-    function start()
+    public function start($attributes = [], $render = true)
     {
-        $this->head();
-        $this->addHtmlScript('<!doctype html><html lang="' . $this->language . '">' . $this->headScript . '<body>');
+        $attributes['lang'] = $this->language;
+        $htmlScript = '<!doctype html><html' . $this->returnAttributes($attributes) . '>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function end()
+    public function end($render = true)
     {
-        $this->addHtmlScript($this->jsScript . '</html>');
+        $htmlScript = '</html>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    private function head()
+    public function head($script = '', $render = true)
     {
-        $this->headScript = '<head>'
+        $htmlScript = '<head>'
             . '<meta charset="' . $this->charset . '">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">'
             . $this->cssScript
             . '<title>' . $this->title . '</title>'
+            . $script
             . '</head>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function containerOpen($class = 'container')
+    public function bodyOpen($attributes = [], $render = true)
     {
-        $this->addHtmlScript('<div class="' . $class . '">');
+        $htmlScript = '<body' . $this->returnAttributes($attributes) . '>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function containerClose()
+    public function bodyClose($render = true)
     {
-        $this->addHtmlScript('</div>');
+        $htmlScript = $this->jsScript . '</body>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function rowOpen($class = '')
+    public function containerOpen($attributes = [], $render = true)
     {
-        if ($class !== '') $class = ' ' . $class;
-        $this->addHtmlScript('<div class="row' . $class . '">');
+        if (!isset($attributes['class'])) $attributes['class'] = 'container';
+        return $this->divOpen($attributes, $render);
     }
 
-    function rowClose()
+    public function containerClose($render = true)
     {
-        $this->addHtmlScript('</div>');
+        return $this->divClose($render);
     }
 
-    function columnOpen($type = false, $size = false)
+    public function rowOpen($attributes = [], $render = true)
+    {
+        if (!isset($attributes['class'])) $attributes['class'] = 'row';
+        return $this->divOpen($attributes, $render);
+    }
+
+    public function rowClose($render = true)
+    {
+        return $this->divClose($render);
+    }
+
+    public function columnOpen($type = false, $size = false, $attributes = [], $render = true)
     {
         if ($type) $type = '-' . $type;
         if ($size) $size = '-' . $size;
-        $this->addHtmlScript('<div class="col' . $type . $size . '">');
+        if (!isset($attributes['class'])) $attributes['class'] = 'col' . $type . $size;
+        return $this->divOpen($attributes, $render);
     }
 
-    function columnClose()
+    public function columnClose($render = true)
     {
-        $this->addHtmlScript('</div>');
+        return $this->divClose($render);
     }
 
-    function h1($heading)
+    public function h1($heading, $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<h1>' . $heading . '</h1>');
+        $htmlScript = '<h1' . $this->returnAttributes($attributes) . '>' . $heading . '</h1>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function h2($heading)
+    public function h2($heading, $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<h2>' . $heading . '</h2>');
+        $htmlScript = '<h2' . $this->returnAttributes($attributes) . '>' . $heading . '</h2>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function h3($heading)
+    public function h3($heading, $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<h3>' . $heading . '</h3>');
+        $htmlScript = '<h3' . $this->returnAttributes($attributes) . '>' . $heading . '</h3>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function h4($heading)
+    public function h4($heading, $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<h4>' . $heading . '</h4>');
+        $htmlScript = '<h4' . $this->returnAttributes($attributes) . '>' . $heading . '</h4>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function h5($heading)
+    public function h5($heading, $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<h5>' . $heading . '</h5>');
+        $htmlScript = '<h5' . $this->returnAttributes($attributes) . '>' . $heading . '</h5>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function h6($heading)
+    public function h6($heading, $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<h6>' . $heading . '</h6>');
+        $htmlScript = '<h6' . $this->returnAttributes($attributes) . '>' . $heading . '</h6>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function alert($text, $type = 'primary')
+    public function alert($text, $type = 'primary', $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<div class="alert alert-' . $type . '" role="alert">' . $text . '</div>');
+        if (!isset($attributes['class'])) $attributes['class'] = 'alert alert-' . $type;
+        if (!isset($attributes['role'])) $attributes['role'] = 'alert';
+        $htmlScript = '<div' . $this->returnAttributes($attributes) . '>' . $text . '</div>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function badge($text, $type = 'primary')
+    public function badge($text, $type = 'primary', $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<span class="badge badge-' . $type . '">' . $text . '</span>');
+        if (!isset($attributes['class'])) $attributes['class'] = 'badge badge-' . $type;
+        $htmlScript = '<span' . $this->returnAttributes($attributes) . '>' . $text . '</span>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function button($text, $type = 'primary')
+    public function button($text, $type = 'primary', $attributes = [], $render = true)
     {
-        $this->addHtmlScript('<button type="button" class="btn btn-' . $type . '">' . $text . '</button>');
+        if (!isset($attributes['class'])) $attributes['class'] = 'btn btn-' . $type;
+        if (!isset($attributes['type'])) $attributes['type'] = 'button';
+        $htmlScript = '<button' . $this->returnAttributes($attributes) . '>' . $text . '</button>';
+        return $this->renderOrReturn($htmlScript, $render);
     }
 
-    function render()
+    public function divOpen($attributes = [], $render = true)
+    {
+        $htmlScript = '<div' . $this->returnAttributes($attributes) . '>';
+        return $this->renderOrReturn($htmlScript, $render);
+    }
+
+    public function divClose($render = true)
+    {
+        $htmlScript = '</div>';
+        return $this->renderOrReturn($htmlScript, $render);
+    }
+
+    public function paragraph($text, $attributes = [], $render = true)
+    {
+        $htmlScript = '<p' . $this->returnAttributes($attributes) . '>' . $text . '</p>';
+        return $this->renderOrReturn($htmlScript, $render);
+    }
+
+    public function link($href = '', $text = '', $attributes = [], $render = true)
+    {
+        if (!isset($attributes['href'])) $attributes['href'] = $href;
+        $htmlScript = '<a' . $this->returnAttributes($attributes) . '>' . $text . '>';
+        return $this->renderOrReturn($htmlScript, $render);
+    }
+
+    public function render()
     {
         echo $this->rendered;
+    }
+
+    private function returnAttributes($attributes)
+    {
+        $return = '';
+        foreach ($attributes as $key => $value) {
+            $return .= ' ' . $key . '="' . $value . '"';
+        }
+        return $return;
+    }
+
+    private function renderOrReturn($script, $render)
+    {
+        if($render) {
+            $this->addHtmlScript($script);
+        }
+        return $script;
     }
 }
